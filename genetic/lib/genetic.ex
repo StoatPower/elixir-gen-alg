@@ -15,11 +15,11 @@ defmodule Genetic do
     iex> Genetic.run(fitness_function, genotype, max_fitness)
 
   """
-  def run(fitness_function, genotype, max_fitness) do
-    population = initialize(genotype)
+  def run(fitness_function, genotype, max_fitness, opts \\ []) do
+    population = initialize(genotype, opts)
 
     population
-    |> evolve(fitness_function, genotype, max_fitness)
+    |> evolve(fitness_function, genotype, max_fitness, opts)
   end
 
   @doc """
@@ -31,8 +31,8 @@ defmodule Genetic do
     iex> Genetic.evolve(population, fitness_function, genotype, max_fitness)
 
   """
-  def evolve(population, fitness_function, genotype, max_fitness) do
-    population = evaluate(population, fitness_function)
+  def evolve(population, fitness_function, genotype, max_fitness, opts \\ []) do
+    population = evaluate(population, fitness_function, opts)
     best = hd(population)
     IO.write("\rCurrent Best: #{fitness_function.(best)}")
 
@@ -40,10 +40,10 @@ defmodule Genetic do
       best
     else
       population
-      |> select()
-      |> crossover()
-      |> mutation()
-      |> evolve(fitness_function, genotype, max_fitness)
+      |> select(opts)
+      |> crossover(opts)
+      |> mutation(opts)
+      |> evolve(fitness_function, genotype, max_fitness, opts)
     end
   end
 
@@ -59,8 +59,9 @@ defmodule Genetic do
     iex> Genotype.initialize()
 
   """
-  def initialize(genotype) do
-    for _ <- 1..100, do: genotype.()
+  def initialize(genotype, opts \\ []) do
+    population_size = Keyword.get(opts, :population_size, 100)
+    for _ <- 1..population_size, do: genotype.()
   end
 
   @doc """
@@ -80,7 +81,7 @@ defmodule Genetic do
     iex> Genetic.evaluate()
 
   """
-  def evaluate(population, fitness_function) do
+  def evaluate(population, fitness_function, opts \\ []) do
     population
     |> Enum.sort_by(fitness_function, &>=/2)
   end
@@ -98,7 +99,7 @@ defmodule Genetic do
     iex> Genetic.selection()
 
   """
-  def selection(population) do
+  def selection(population, opts \\ []) do
     population
     |> Enum.chunk_every(2)
     |> Enum.map(&List.to_tuple(&1))
@@ -117,7 +118,7 @@ defmodule Genetic do
     iex> Genetic.selection()
 
   """
-  def crossover(population) do
+  def crossover(population, opts \\ []) do
     population
     |> Enum.reduce(
       [],
@@ -137,7 +138,7 @@ defmodule Genetic do
     * Rule 14 - accepts a population as input
     * Rule 15 - mutates a small percentage of population
   """
-  def mutation(population) do
+  def mutation(population, opts \\ []) do
     population
     |> Enum.map(fn chromosome ->
       if :rand.uniform() < 0.05 do
