@@ -70,7 +70,7 @@ Once sorted, you can begin selecting parents for reproduction. Selection is resp
 
 ### Step 4 - Creating Children
 
-Crossover is analagous to reproduction. The goal of crossover is to exploit the strengths of current solutoins to find new, better solutions.
+Crossover is analagous to reproduction. The goal of crossover is to exploit the strengths of current solutions to find new, better solutions.
 
 #### Rule 11
 

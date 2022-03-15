@@ -40,7 +40,7 @@ defmodule Genetic do
       best
     else
       population
-      |> select(opts)
+      |> selection(opts)
       |> crossover(opts)
       |> mutation(opts)
       |> evolve(fitness_function, genotype, max_fitness, opts)
