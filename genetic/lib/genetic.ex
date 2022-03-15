@@ -85,7 +85,13 @@ defmodule Genetic do
   """
   def evaluate(population, fitness_function, opts \\ []) do
     population
-    |> Enum.sort_by(fitness_function, &>=/2)
+    |> Enum.map(
+      fn chromosome ->
+        fitness = fitness_function.(chromosome)
+        age = chromosome.age + 1
+        %Chromosome{chromosome | fitness: fitness, age: age}
+      end
+    )
   end
 
   @doc """
