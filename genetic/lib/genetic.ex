@@ -1,4 +1,6 @@
 defmodule Genetic do
+  alias Types.Chromosome
+
   @moduledoc """
   Documentation for `Genetic`.
   """
@@ -12,14 +14,14 @@ defmodule Genetic do
 
   ## Examples
 
-    iex> Genetic.run(fitness_function, genotype, max_fitness)
+    iex> Genetic.run(problem)
 
   """
-  def run(fitness_function, genotype, max_fitness, opts \\ []) do
-    population = initialize(genotype, opts)
+  def run(problem, opts \\ []) do
+    population = initialize(&problem.genotype/0, opts)
 
     population
-    |> evolve(fitness_function, genotype, max_fitness, opts)
+    |> evolve(problem, opts)
   end
 
   @doc """
@@ -28,22 +30,22 @@ defmodule Genetic do
 
   ## Examples
 
-    iex> Genetic.evolve(population, fitness_function, genotype, max_fitness)
+    iex> Genetic.evolve(population, problem)
 
   """
-  def evolve(population, fitness_function, genotype, max_fitness, opts \\ []) do
-    population = evaluate(population, fitness_function, opts)
+  def evolve(population, problem, opts \\ []) do
+    population = evaluate(population, &problem.fitness_function/1, opts)
     best = hd(population)
-    IO.write("\rCurrent Best: #{fitness_function.(best)}")
+    IO.write("\rCurrent Best: #{best.fitness}")
 
-    if fitness_function.(best) == max_fitness do
+    if problem.terminate?(population) do
       best
     else
       population
       |> selection(opts)
       |> crossover(opts)
       |> mutation(opts)
-      |> evolve(fitness_function, genotype, max_fitness, opts)
+      |> evolve(problem, opts)
     end
   end
 
