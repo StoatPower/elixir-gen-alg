@@ -26,7 +26,7 @@ The size of a population doesn't matter either. Bigger populations take longer t
 
 ### Step 1 - Initializing the Population
 
-The first step in every genetic algorithm is initializing the population, which is typically random.
+The first step in every genetic algorithm is initializing the population, which is typically random. This is done with a `genotype` function, which is just a way to represent solutions.
 
 #### Rule 3
 
@@ -38,7 +38,7 @@ The first step in every genetic algorithm is initializing the population, which 
 
 ### Step 2 - Evaluating the Population
 
-The evaluation step is responsible for evaluating each chromosome based on some `fitness function` and `sorting` the population based on this fitness.
+The evaluation step is responsible for evaluating each chromosome based on some `fitness function` and `sorting` the population based on this fitness. The fitness function is a way to measure success.
 
 #### Rule 5
 
