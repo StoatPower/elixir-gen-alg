@@ -45,7 +45,7 @@ defmodule Genetic do
       |> selection(opts)
       |> crossover(opts)
       |> mutation(opts)
-      |> evolve(problem, opts)
+      |> evolve(problem, opts) # recurse
     end
   end
 
