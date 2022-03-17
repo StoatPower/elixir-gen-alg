@@ -12,7 +12,7 @@ defmodule OneMax do
   def fitness_function(chromosome), do: Enum.sum(chromosome.genes)
 
   @impl true
-  def terminate?([best | _], _), do: best.fitness == 42
+  def terminate?(_, generation), do: generation == 100
 end
 
 solution = Genetic.run(OneMax)
