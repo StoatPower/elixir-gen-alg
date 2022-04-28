@@ -4,22 +4,22 @@ defmodule OneMax do
 
   @impl true
   def genotype do
-    genes = for _ <- 1..42, do: Enum.random(0..1)
-    %Chromosome{genes: genes, size: 42}
+    genes = for _ <- 1..5, do: Enum.random(0..1)
+    %Chromosome{genes: genes, size: 5}
   end
 
   @impl true
   def fitness_function(chromosome) do
     IO.inspect(chromosome)
-    fit = IO.get("Rate from 1 to 10")
-    String.to_integer(fit)
+    fit = IO.gets("Rate from 1 to 10: ")
+    fit |> String.trim |> String.to_integer()
   end
 
   @impl true
-  def terminate?(_, _, temperature), do: temperature < 25
+  def terminate?(_, generation, _temperature), do: generation == 2
 end
 
-solution = Genetic.run(OneMax)
+solution = Genetic.run(OneMax, population_size: 2)
 
 IO.write("\n")
 IO.inspect(solution)

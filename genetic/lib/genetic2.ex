@@ -1,4 +1,4 @@
-defmodule Genetic do
+defmodule Genetic2 do
   alias Types.Chromosome
 
   @moduledoc """
@@ -36,7 +36,7 @@ defmodule Genetic do
   def evolve(population, problem, generation, last_max_fitness, temperature, opts \\ []) do
     population = evaluate(population, &problem.fitness_function/1, opts)
 
-    best = Enum.max_by(population, &problem.fitness_function/1)
+    best = hd(population)
     best_fitness = best.fitness
     temperature = 0.8 * (temperature + (best_fitness - last_max_fitness))
     IO.write("\rCurrent Best: #{best.fitness}")
@@ -46,9 +46,11 @@ defmodule Genetic do
     else
       generation = generation + 1
 
-      population
-      |> selection(opts)
-      |> crossover(opts)
+      {parents, leftover} = selection(population, opts)
+      # obtain new children by passing parents into crossover
+      children = crossover(parents, opts)
+      # recombine children with leftover before mutating and continuing evolution
+      (children ++ leftover)
       |> mutation(opts)
       # recurse
       |> evolve(problem, generation, best_fitness, temperature, opts)
@@ -92,15 +94,41 @@ defmodule Genetic do
   @doc """
   Step 3 - Selection of parents in population.
 
+  Accepts many different kinds of selection and defaults to `elite/2` which is what
+  our initial, naive implementation did. Also accounts for different selection rates.
+
   Follows the following rules:
     * Rule 9 - takes a population as input
     * Rule 10 - produces a transformed population that easy's to work
         with during crossover
   """
   def selection(population, opts \\ []) do
-    population
-    |> Enum.chunk_every(2)
-    |> Enum.map(&List.to_tuple(&1))
+    select_fn = Keyword.get(opts, :selection_type, Toolbox.Selection.elite() / 2)
+    select_rate = Keyword.get(opts, :selection_rate, 0.8)
+
+    # `n` is the number of parents to select
+    # the associated logic just ensures you have enough parents to make even pairs
+    n = round(length(population) * select_rate)
+    n = if rem(n, 2) == 0, do: n, else: n + 1
+
+    # extract the parents using `apply/2` and the chosen selection strategy
+    parents =
+      select_fn
+      |> apply([population])
+
+    # determine who wasn't selected with the help of MapSet
+    leftover =
+      population
+      |> MapSet.new()
+      |> MapSet.difference(MapSet.new(parents))
+
+    # turn the parents into tuples for corssover
+    parents =
+      parents
+      |> Enum.chunk_every(2)
+      |> Enum.map(&List.to_tuple(&1))
+
+    {parents, MapSet.to_list(leftover)}
   end
 
   @doc """
