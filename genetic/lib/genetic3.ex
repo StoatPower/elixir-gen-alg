@@ -134,19 +134,21 @@ defmodule Genetic2 do
   @doc """
   Step 4 - Crossover: recombine selected parents into new children
 
+  Accepts many types of crossover defaulting to our `naive` function
+
   Follows the following rules:
     * Rule 11 - takes a list of parents as input
     * Rule 12 - recombines the list of parents using a crossover function
     * Rule 13 - returns a population of the same size as input population
   """
   def crossover(population, opts \\ []) do
+    crossover_fn = Keyword.get(opts, :crossover_type, &Toolbox.Crossover.naive/2)
+
     population
     |> Enum.reduce(
       [],
       fn {p1, p2}, acc ->
-        cx_point = :rand.uniform(length(p1.genes))
-        {{h1, t1}, {h2, t2}} = {Enum.split(p1.genes, cx_point), Enum.split(p2.genes, cx_point)}
-        {c1, c2} = {%Chromosome{p1 | genes: h1 ++ t2}, %Chromosome{p2 | genes: h2 ++ t1}}
+        {c1, c2} = apply(crossover_fn, [p1, p2])
         [c1, c2 | acc]
       end
     )

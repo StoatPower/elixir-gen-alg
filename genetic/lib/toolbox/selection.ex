@@ -54,7 +54,7 @@ defmodule Toolbox.Selection do
     to disallowing duplicates.
   """
   def tournament(population, n, tournament_size) do
-    0..(n-1)
+    0..(n - 1)
     |> Enum.map(&tournament_selector/2)
   end
 
@@ -87,14 +87,14 @@ defmodule Toolbox.Selection do
         population
         |> tournament_selector(tournament_size)
 
-        tournament_no_dupes_helper(population, n, tournament_size, MapSet.put(selected, chosen))
+      tournament_no_dupes_helper(population, n, tournament_size, MapSet.put(selected, chosen))
     end
   end
 
   defp tournament_selector(population, tournament_size) do
     population
     |> Enum.take_random(tournament_size)
-    |> Enum.max_by(&(&1.fitness))
+    |> Enum.max_by(& &1.fitness)
   end
 
   @doc """
@@ -108,16 +108,16 @@ defmodule Toolbox.Selection do
 
   Try tournament selection first.
   """
-  def roulette(chromsomes, n) do
+  def roulette(chromosomes, n) do
     # calculate the total fitness of the population.
     # necessary to determine the proportion of the roulette wheel each chromosome will occupy
     sum_fitness =
       chromosomes
-      |> Enum.map(&(&1.fitness))
+      |> Enum.map(& &1.fitness)
       |> Enum.sum()
 
     # select `n` individuals
-    0..(n-1)
+    0..(n - 1)
     |> Enum.map(fn _ ->
       # calculate random value `u`, representing one spin of the wheel
       u = :rand.uniform() * sum_fitness
@@ -137,5 +137,4 @@ defmodule Toolbox.Selection do
       )
     end)
   end
-
 end
