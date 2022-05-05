@@ -143,15 +143,24 @@ defmodule Genetic3 do
   """
   def crossover(population, opts \\ []) do
     crossover_fn = Keyword.get(opts, :crossover_type, &Toolbox.Crossover.single_point/2)
+    repairment_fn = Keyword.get(opts, :repairment_fn)
 
-    population
-    |> Enum.reduce(
-      [],
-      fn {p1, p2}, acc ->
-        {c1, c2} = apply(crossover_fn, [p1, p2])
-        [c1, c2 | acc]
-      end
-    )
+    children =
+      population
+      |> Enum.reduce(
+        [],
+        fn {p1, p2}, acc ->
+          {c1, c2} = apply(crossover_fn, [p1, p2])
+          [c1, c2 | acc]
+        end
+      )
+
+    if is_function(repairment_fn) do
+      children
+      |> Enum.map(& repairment_fn.(&1))
+    else
+      children
+    end
   end
 
   @doc """
