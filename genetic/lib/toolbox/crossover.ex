@@ -1,16 +1,38 @@
 defmodule Toolbox.Crossover do
   alias Types.Chromosome
 
-  def naive(p1, p2) do
-    cx_point = :rand.uniform(length(p1.genes))
-    {{h1, t1}, {h2, t2}} = {Enum.split(p1.genes, cx_point), Enum.split(p2.genes, cx_point)}
+  def single_point(p1, p2) do
+    cx_point = :rand.uniform(p1.size)
+    {h1, t1} = Enum.split(p1.genes, cx_point)
+    {h2, t2} = Enum.split(p2.genes, cx_point)
+    {c1, c2} = {h1 ++ t2, h2 ++ t1}
+
     {
-      %Chromosome{p1 | genes: h1 ++ t2},
-      %Chromosome{p2 | genes: h2 ++ t1}
+      %Chromosome{p1 | genes: c1, size: length(c1)},
+      %Chromosome{p2 | genes: c2, size: length(c2)}
     }
   end
 
-  def order_one_crossover(p1, p2) do
+  def uniform(p1, p2, rate) do
+    {c1, c2} =
+      p1.genes
+      |> Enum.zip(p2.genes)
+      |> Enum.map(fn {x, y} ->
+        if :rand.uniform() < rate do
+          {x, y}
+        else
+          {y, x}
+        end
+      end)
+      |> Enum.unzip()
+
+    {
+      %Chromosome{genes: c1, size: length(c1)},
+      %Chromosome{genes: c2, size: length(c2)}
+    }
+  end
+
+  def order_one(p1, p2) do
     lim = Enum.count(p1.genes) - 1
     # Get random range
     {i1, i2} =
@@ -42,6 +64,24 @@ defmodule Toolbox.Crossover do
         genes: c2,
         size: p2.size
       }
+    }
+  end
+
+  def whole_arithmetic(p1, p2, alpha) do
+    {c1, c2} =
+      p1.genes
+      |> Enum.zip(p2.genes)
+      |> Enum.map(fn {x, y} ->
+        {
+          x * alpha + y * (1 - alpha),
+          x * (1 - alpha) + y * alpha
+        }
+      end)
+      |> Enum.unzip()
+
+    {
+      %Chromosome{genes: c1, size: length(c1)},
+      %Chromosome{genes: c2, size: length(c2)}
     }
   end
 end

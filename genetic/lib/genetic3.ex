@@ -1,4 +1,4 @@
-defmodule Genetic2 do
+defmodule Genetic3 do
   alias Types.Chromosome
 
   @moduledoc """
@@ -142,7 +142,7 @@ defmodule Genetic2 do
     * Rule 13 - returns a population of the same size as input population
   """
   def crossover(population, opts \\ []) do
-    crossover_fn = Keyword.get(opts, :crossover_type, &Toolbox.Crossover.naive/2)
+    crossover_fn = Keyword.get(opts, :crossover_type, &Toolbox.Crossover.single_point/2)
 
     population
     |> Enum.reduce(
