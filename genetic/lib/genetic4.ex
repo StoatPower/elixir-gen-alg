@@ -1,4 +1,4 @@
-defmodule Genetic3 do
+defmodule Genetic4 do
   alias Types.Chromosome
 
   @moduledoc """
@@ -134,7 +134,7 @@ defmodule Genetic3 do
   @doc """
   Step 4 - Crossover: recombine selected parents into new children
 
-  Accepts many types of crossover defaulting to our `naive` function
+  Accepts many types of crossover defaulting to "single point" crossover.
 
   Follows the following rules:
     * Rule 11 - takes a list of parents as input
@@ -166,15 +166,20 @@ defmodule Genetic3 do
   @doc """
   Step 5 - Mutation to prevent premature convergence
 
+  Accepts many types of mutation strategies defaulting to
+
   Follows the following rules:
     * Rule 14 - accepts a population as input
     * Rule 15 - mutates a small percentage of population
   """
   def mutation(population, opts \\ []) do
+    mutate_fn = Keyword.get(opts, :mutation_type, &Toolbox.Mutation.flip/1)
+    rate = Keyword.get(opts, :mutation_rate, 0.05)
+
     population
     |> Enum.map(fn chromosome ->
-      if :rand.uniform() < 0.05 do
-        %Chromosome{chromosome | genes: Enum.shuffle(chromosome.genes)}
+      if :rand.uniform() < rate do
+        apply(mutate_fn, [chromosome])
       else
         chromosome
       end
